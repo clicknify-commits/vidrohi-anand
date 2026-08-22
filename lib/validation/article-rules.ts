@@ -1,4 +1,4 @@
-import { FEATURED_MIN_WIDTH, FEATURED_MIN_HEIGHT } from "@/lib/images/process";
+import { FEATURED_MIN_WIDTH, FEATURED_MIN_HEIGHT } from "@/lib/images/constants";
 
 export interface ReviewCheck {
   ready: boolean;

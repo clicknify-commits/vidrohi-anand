@@ -1,5 +1,7 @@
 import sharp from "sharp";
 
+export { FEATURED_MIN_WIDTH, FEATURED_MIN_HEIGHT } from "@/lib/images/constants";
+
 export interface ProcessedImage {
   thumbnail: Buffer;
   card: Buffer;
@@ -13,9 +15,6 @@ const SIZES = {
   card: 640,
   full: 1600,
 } as const;
-
-export const FEATURED_MIN_WIDTH = 1200;
-export const FEATURED_MIN_HEIGHT = 675;
 
 export async function processImage(input: Buffer): Promise<ProcessedImage> {
   const metadata = await sharp(input, { failOn: "none" }).rotate().metadata();
