@@ -85,6 +85,36 @@ export async function getLatestArticles(
   return (data ?? []).map(toCardData);
 }
 
+// Grabs a broader pool and shuffles it in JS - PostgREST has no clean
+// server-side ORDER BY random(), and at ~100 published articles it's
+// cheaper than a random-per-row Postgres query. Excludes any slugs the
+// caller already renders elsewhere on the page (e.g. the hero/bento tiles
+// or category rails) so the sidebar never shows a story that's already
+// visible above.
+export async function getRandomArticles(
+  limit = 5,
+  excludeSlugs: string[] = []
+): Promise<ArticleCardData[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("articles")
+    .select(CARD_SELECT)
+    .eq("status", "published")
+    .order("published_at", { ascending: false })
+    .limit(50)
+    .returns<RawArticleRow[]>();
+
+  const pool = (data ?? [])
+    .filter((row) => !excludeSlugs.includes(row.slug))
+    .map(toCardData);
+
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, limit);
+}
+
 export async function getBreakingArticles(limit = 5): Promise<ArticleCardData[]> {
   const supabase = await createClient();
   const { data } = await supabase
