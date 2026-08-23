@@ -113,11 +113,7 @@ async function fetchForecast(
   };
 }
 
-// Open-Meteo: free, no API key or signup required for non-commercial use -
-// see open-meteo.com. Needs lat/lon rather than a city name, so this
-// geocodes first; both calls are cached, so a given city only round-trips
-// once per revalidate window regardless of visitor count.
-export async function getWeather(city: string, days = 3): Promise<WeatherData | null> {
+async function fetchOpenMeteo(city: string, days: number): Promise<WeatherData | null> {
   try {
     const location = await geocode(city);
     if (!location) return null;
@@ -126,6 +122,70 @@ export async function getWeather(city: string, days = 3): Promise<WeatherData | 
   } catch {
     return null;
   }
+}
+
+interface ImdDay {
+  date?: string;
+  max_temp?: number;
+  min_temp?: number;
+  description?: string;
+}
+
+interface ImdResponse {
+  city?: string;
+  temperature?: number;
+  weather_description?: string;
+  forecast?: ImdDay[];
+}
+
+// Best-effort field mapping - the exact IndianWeatherResponse schema wasn't
+// fully readable from the (JS-rendered) sandbox docs, only the endpoint/auth
+// shape. Any mismatch here fails the sanity check below and falls through
+// to Open-Meteo, so a wrong guess degrades gracefully rather than breaking.
+async function fetchImd(city: string, days: number): Promise<WeatherData | null> {
+  const key = process.env.INDIAN_WEATHER_API_KEY;
+  if (!key) return null;
+
+  try {
+    const res = await fetch(
+      `https://weather.indianapi.in/india/weather?city=${encodeURIComponent(city)}`,
+      { headers: { "x-api-key": key }, next: { revalidate: 1800 } }
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as ImdResponse;
+
+    const forecast = (data.forecast ?? []).slice(0, days).map((day) => ({
+      date: day.date ?? "",
+      maxC: Math.round(day.max_temp ?? NaN),
+      minC: Math.round(day.min_temp ?? NaN),
+      conditionHi: day.description ?? "",
+      conditionIcon: "",
+    }));
+    const tempC = Math.round(data.temperature ?? NaN);
+
+    // Sanity check: if the guessed field names didn't match reality, these
+    // come out NaN/empty - treat that as failure rather than show garbage.
+    if (Number.isNaN(tempC) || forecast.some((d) => Number.isNaN(d.maxC))) return null;
+
+    return {
+      city: data.city || city,
+      tempC,
+      conditionHi: data.weather_description ?? "",
+      conditionIcon: "",
+      forecast,
+    };
+  } catch {
+    return null;
+  }
+}
+
+// Prefers IMD data (India Meteorological Department, via indianapi.in) when
+// INDIAN_WEATHER_API_KEY is configured - more authoritative for Indian
+// cities than a global model. Falls back to Open-Meteo (always free, no
+// key) if IMD isn't configured or its response doesn't look right.
+export async function getWeather(city: string, days = 3): Promise<WeatherData | null> {
+  const imd = await fetchImd(city, days);
+  return imd ?? fetchOpenMeteo(city, days);
 }
 
 // For when the caller already has coordinates (browser geolocation) - skips
