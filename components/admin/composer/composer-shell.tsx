@@ -21,14 +21,16 @@ import { FiveImageGrid } from "./five-image-grid";
 import { SeoPanel } from "./seo-panel";
 import { PublishControls } from "./publish-controls";
 import { checkReadyForReview } from "@/lib/validation/article-rules";
-import type { Article, ArticleImage, ArticleStatus, Category, Tag } from "@/lib/types";
+import { useLanguage } from "@/components/admin/language-provider";
+import type { Article, ArticleImage, ArticleStatus, Author, Category, Tag } from "@/lib/types";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 
-const STATUS_LABELS: Record<ArticleStatus, string> = {
-  draft: "ड्राफ्ट",
-  in_review: "समीक्षा में",
-  scheduled: "शेड्यूल्ड",
-  published: "प्रकाशित",
-  archived: "आर्काइव्ड",
+const STATUS_KEYS: Record<ArticleStatus, TranslationKey> = {
+  draft: "status.draft",
+  in_review: "status.in_review",
+  scheduled: "status.scheduled",
+  published: "status.published",
+  archived: "status.archived",
 };
 
 interface ComposerShellProps {
@@ -36,6 +38,7 @@ interface ComposerShellProps {
   initialImages: ArticleImage[];
   categories: Category[];
   tags: Tag[];
+  authors: Author[];
   initialTagIds: string[];
 }
 
@@ -46,14 +49,17 @@ export function ComposerShell({
   initialImages,
   categories,
   tags,
+  authors,
   initialTagIds,
 }: ComposerShellProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [headline, setHeadline] = useState(article.headline);
   const [dek, setDek] = useState(article.dek ?? "");
   const [slug, setSlug] = useState(article.slug);
   const [categoryId, setCategoryId] = useState(article.category_id);
   const [cityTag, setCityTag] = useState(article.city_tag ?? "");
+  const [authorId, setAuthorId] = useState(article.author_id ?? "");
   const [guestAuthorName, setGuestAuthorName] = useState(article.guest_author_name ?? "");
   const [body, setBody] = useState<JSONContent>(
     Object.keys(article.body ?? {}).length ? (article.body as JSONContent) : EMPTY_DOC
@@ -81,6 +87,7 @@ export function ComposerShell({
       slug,
       category_id: categoryId,
       city_tag: cityTag || null,
+      author_id: authorId || null,
       guest_author_name: guestAuthorName || null,
       body,
       tag_ids: tagIds,
@@ -123,39 +130,41 @@ export function ComposerShell({
               markDirty();
             }}
             className="text-xl font-semibold"
-            placeholder="शीर्षक"
+            placeholder={t("composer.headlinePlaceholder")}
           />
-          <p className="text-xs text-muted-foreground">{headline.length} अक्षर (सुझाव: 50-70)</p>
+          <p className="text-xs text-muted-foreground">
+            {headline.length} {t("composer.charsSuggestion")}
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="outline">{STATUS_LABELS[status]}</Badge>
+          <Badge variant="outline">{t(STATUS_KEYS[status])}</Badge>
           <button
             type="button"
             onClick={async () => {
               markDirty();
               await save();
-              toast.success("सेव हो गया");
+              toast.success(t("composer.saved"));
             }}
             className="text-xs text-muted-foreground underline"
           >
-            अभी सेव करें
+            {t("composer.saveNow")}
           </button>
         </div>
       </div>
 
       <Tabs defaultValue="story">
         <TabsList>
-          <TabsTrigger value="story">स्टोरी</TabsTrigger>
+          <TabsTrigger value="story">{t("composer.tabStory")}</TabsTrigger>
           <TabsTrigger value="images">
-            छवियाँ {readiness.ready ? "✓" : `(${images.length}/5)`}
+            {t("composer.tabImages")} {readiness.ready ? "✓" : `(${images.length}/5)`}
           </TabsTrigger>
-          <TabsTrigger value="seo">SEO</TabsTrigger>
-          <TabsTrigger value="publish">प्रकाशन</TabsTrigger>
+          <TabsTrigger value="seo">{t("composer.tabSeo")}</TabsTrigger>
+          <TabsTrigger value="publish">{t("composer.tabPublish")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="story" className="space-y-4">
           <div className="space-y-2">
-            <Label>देक / उप-शीर्षक</Label>
+            <Label>{t("composer.dek")}</Label>
             <Textarea
               value={dek}
               onChange={(e) => {
@@ -168,7 +177,7 @@ export function ComposerShell({
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>श्रेणी *</Label>
+              <Label>{t("composer.categoryRequired")}</Label>
               <Select
                 value={categoryId}
                 onValueChange={(v) => {
@@ -189,7 +198,7 @@ export function ComposerShell({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>शहर / राज्य टैग</Label>
+              <Label>{t("composer.cityTag")}</Label>
               <Input
                 value={cityTag}
                 onChange={(e) => {
@@ -201,7 +210,7 @@ export function ComposerShell({
           </div>
 
           <div className="space-y-2">
-            <Label>URL स्लग</Label>
+            <Label>{t("composer.slug")}</Label>
             <Input
               value={slug}
               onChange={(e) => {
@@ -215,7 +224,30 @@ export function ComposerShell({
           </div>
 
           <div className="space-y-2">
-            <Label>गेस्ट बायलाइन (वैकल्पिक)</Label>
+            <Label>{t("composer.author")}</Label>
+            <Select
+              value={authorId || "none"}
+              onValueChange={(v) => {
+                setAuthorId(v === "none" ? "" : v);
+                markDirty();
+              }}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">{t("composer.authorNone")}</SelectItem>
+                {authors.map((a) => (
+                  <SelectItem key={a.id} value={a.id}>
+                    {a.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>{t("composer.guestByline")}</Label>
             <Input
               value={guestAuthorName}
               onChange={(e) => {
@@ -226,7 +258,7 @@ export function ComposerShell({
           </div>
 
           <div className="space-y-2">
-            <Label>टैग (अधिकतम 6)</Label>
+            <Label>{t("composer.tagsMax")}</Label>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => {
                 const active = tagIds.includes(tag.id);
@@ -252,8 +284,9 @@ export function ComposerShell({
           </div>
 
           <div className="space-y-2">
-            <Label>मुख्य लेख</Label>
+            <Label>{t("composer.body")}</Label>
             <TiptapEditor
+              articleId={article.id}
               content={body}
               onChange={(json) => {
                 setBody(json);
@@ -266,10 +299,10 @@ export function ComposerShell({
         <TabsContent value="images">
           {!readiness.ready ? (
             <div className="mb-4 rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-              <p className="font-medium">प्रकाशन/समीक्षा से पहले पूरा करें:</p>
+              <p className="font-medium">{t("composer.beforePublish")}</p>
               <ul className="ml-4 list-disc">
                 {readiness.missing.map((m) => (
-                  <li key={m}>{m}</li>
+                  <li key={`${m.key}-${m.position}`}>{t(m.key, { position: m.position })}</li>
                 ))}
               </ul>
             </div>

@@ -33,13 +33,15 @@ export default async function CategoryPage(props: PageProps<"/[category]">) {
   const articles = await getLatestArticles(24, categorySlug);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <Breadcrumbs items={[{ label: "होम", href: "/" }, { label: category.name_hi }]} />
-      <h1 className="text-2xl font-bold">{category.name_hi}</h1>
+      <h1 className="font-heading border-b-2 border-foreground pb-3 text-3xl font-bold">
+        {category.name_hi}
+      </h1>
       {articles.length === 0 ? (
         <p className="text-muted-foreground">इस श्रेणी में अभी कोई समाचार नहीं है।</p>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
           {articles.map((a) => (
             <ArticleCard key={a.slug} article={a} />
           ))}

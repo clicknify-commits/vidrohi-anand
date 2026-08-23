@@ -3,6 +3,8 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { publicImageUrl } from "@/lib/images/url";
 import { Card, CardContent } from "@/components/ui/card";
+import { getLanguage } from "@/lib/i18n/language";
+import { t } from "@/lib/i18n/dictionary";
 
 interface MediaRow {
   id: string;
@@ -15,6 +17,7 @@ interface MediaRow {
 }
 
 export default async function MediaLibraryPage() {
+  const lang = await getLanguage();
   const supabase = await createClient();
   const { data } = await supabase
     .from("article_images")
@@ -29,10 +32,10 @@ export default async function MediaLibraryPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">मीडिया लाइब्रेरी</h1>
+      <h1 className="text-2xl font-semibold">{t(lang, "media.title")}</h1>
 
       {images.length === 0 ? (
-        <p className="text-sm text-muted-foreground">अभी कोई छवि अपलोड नहीं हुई है।</p>
+        <p className="text-sm text-muted-foreground">{t(lang, "media.noneUploaded")}</p>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {images.map((img) => (
@@ -51,7 +54,7 @@ export default async function MediaLibraryPage() {
                   <p className="truncate text-xs font-medium">
                     {img.articles?.headline ?? "—"}
                   </p>
-                  <p className="text-[11px] text-muted-foreground">स्लॉट {img.position}</p>
+                  <p className="text-[11px] text-muted-foreground">{t(lang, "media.slot", { position: img.position })}</p>
                 </CardContent>
               </Link>
             </Card>

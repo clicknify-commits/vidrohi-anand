@@ -18,13 +18,13 @@ export function ShareRow({ url, title }: { url: string; title: string }) {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 border-y py-3 text-sm">
-      <span className="text-muted-foreground">शेयर करें:</span>
+    <div className="flex flex-wrap items-center gap-2 border-y py-4 text-sm">
+      <span className="font-medium text-muted-foreground">शेयर करें:</span>
       <a
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="rounded-full border px-3 py-1 hover:bg-muted"
+        className="rounded-full border px-3.5 py-1.5 transition-colors hover:border-brand hover:text-brand"
       >
         WhatsApp
       </a>
@@ -32,14 +32,21 @@ export function ShareRow({ url, title }: { url: string; title: string }) {
         href={xUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="rounded-full border px-3 py-1 hover:bg-muted"
+        className="rounded-full border px-3.5 py-1.5 transition-colors hover:border-brand hover:text-brand"
       >
         X
       </a>
-      <a href={instagramUrl} className="rounded-full border px-3 py-1 hover:bg-muted">
+      <a
+        href={instagramUrl}
+        className="rounded-full border px-3.5 py-1.5 transition-colors hover:border-brand hover:text-brand"
+      >
         Instagram Stories
       </a>
-      <button type="button" onClick={copyLink} className="rounded-full border px-3 py-1 hover:bg-muted">
+      <button
+        type="button"
+        onClick={copyLink}
+        className="rounded-full border px-3.5 py-1.5 transition-colors hover:border-brand hover:text-brand"
+      >
         {copied ? "कॉपी हो गया ✓" : "लिंक कॉपी करें"}
       </button>
     </div>

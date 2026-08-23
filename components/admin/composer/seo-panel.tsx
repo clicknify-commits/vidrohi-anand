@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { useLanguage } from "@/components/admin/language-provider";
 
 interface SeoFields {
   seo_title?: string;
@@ -38,6 +39,7 @@ export function SeoPanel({
   categorySlug,
   onChange,
 }: SeoPanelProps) {
+  const { t } = useLanguage();
   const effectiveTitle = seoTitle || headline;
   const url = `${siteUrl}/${categorySlug || "…"}/${slug}`;
 
@@ -45,7 +47,7 @@ export function SeoPanel({
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label>SEO शीर्षक</Label>
+          <Label>{t("seo.title")}</Label>
           <Input
             value={seoTitle}
             placeholder={headline}
@@ -53,28 +55,30 @@ export function SeoPanel({
             maxLength={70}
           />
           <p className="text-xs text-muted-foreground">
-            {seoTitle.length}/60 अक्षर - खाली छोड़ने पर मुख्य शीर्षक उपयोग होगा
+            {seoTitle.length}/60 {t("seo.titleHint")}
           </p>
         </div>
 
         <div className="space-y-2">
-          <Label>मेटा विवरण</Label>
+          <Label>{t("seo.description")}</Label>
           <Textarea
             value={seoDescription}
             onChange={(e) => onChange({ seo_description: e.target.value })}
             maxLength={200}
             rows={3}
           />
-          <p className="text-xs text-muted-foreground">{seoDescription.length}/155 अक्षर</p>
+          <p className="text-xs text-muted-foreground">
+            {seoDescription.length}/155 {t("seo.descriptionChars")}
+          </p>
         </div>
 
         <div className="space-y-2">
-          <Label>फोकस कीवर्ड</Label>
+          <Label>{t("seo.focusKeyword")}</Label>
           <Input value={focusKeyword} onChange={(e) => onChange({ focus_keyword: e.target.value })} />
         </div>
 
         <div className="space-y-2">
-          <Label>कैनोनिकल URL (वायर/सिंडिकेटेड स्टोरी के लिए)</Label>
+          <Label>{t("seo.canonicalUrl")}</Label>
           <Input
             value={canonicalUrl}
             onChange={(e) => onChange({ canonical_url: e.target.value })}
@@ -84,20 +88,20 @@ export function SeoPanel({
 
         <div className="flex items-center justify-between rounded border p-3">
           <div>
-            <Label>सर्च इंजन में इंडेक्स करें</Label>
-            <p className="text-xs text-muted-foreground">बंद करने पर robots noindex टैग जुड़ेगा</p>
+            <Label>{t("seo.indexTitle")}</Label>
+            <p className="text-xs text-muted-foreground">{t("seo.indexHint")}</p>
           </div>
           <Switch checked={robotsIndex} onCheckedChange={(checked) => onChange({ robots_index: checked })} />
         </div>
       </div>
 
       <div className="space-y-2 rounded border p-4">
-        <p className="text-xs font-medium text-muted-foreground">Google खोज पूर्वावलोकन</p>
+        <p className="text-xs font-medium text-muted-foreground">{t("seo.preview")}</p>
         <div className="space-y-0.5">
-          <p className="truncate text-base text-[#1a0dab]">{effectiveTitle || "शीर्षक…"}</p>
+          <p className="truncate text-base text-[#1a0dab]">{effectiveTitle || t("seo.titlePlaceholder")}</p>
           <p className="text-xs text-[#006621]">{url}</p>
           <p className="line-clamp-2 text-sm text-[#545454]">
-            {seoDescription || "मेटा विवरण खाली है - लेख के पहले अंश से स्वतः बनेगा।"}
+            {seoDescription || t("seo.descriptionPlaceholder")}
           </p>
         </div>
       </div>

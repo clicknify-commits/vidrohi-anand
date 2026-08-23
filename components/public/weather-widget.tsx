@@ -25,7 +25,7 @@ export function WeatherWidget({ initial }: { initial: WeatherData | null }) {
 
   if (!weather) {
     return (
-      <button onClick={useMyLocation} className="text-xs text-muted-foreground hover:underline">
+      <button onClick={useMyLocation} className="text-xs opacity-70 hover:underline hover:opacity-100">
         मौसम उपलब्ध नहीं
       </button>
     );
@@ -36,8 +36,9 @@ export function WeatherWidget({ initial }: { initial: WeatherData | null }) {
       <PopoverTrigger asChild>
         <button className="flex items-center gap-1.5 text-sm">
           {weather.conditionIcon ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={weather.conditionIcon} alt={weather.conditionHi} className="size-5" />
+            <span aria-label={weather.conditionHi} className="text-base leading-none">
+              {weather.conditionIcon}
+            </span>
           ) : null}
           <span>{weather.city}</span>
           <span className="font-medium">{weather.tempC}°C</span>
@@ -63,8 +64,9 @@ export function WeatherWidget({ initial }: { initial: WeatherData | null }) {
                   {new Date(day.date).toLocaleDateString("hi-IN", { weekday: "short" })}
                 </p>
                 {day.conditionIcon ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={day.conditionIcon} alt={day.conditionHi} className="mx-auto size-6" />
+                  <p aria-label={day.conditionHi} className="text-lg leading-none">
+                    {day.conditionIcon}
+                  </p>
                 ) : null}
                 <p>
                   {day.maxC}° / {day.minC}°

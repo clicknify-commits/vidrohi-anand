@@ -24,15 +24,16 @@ export async function HeaderStrip() {
   }).format(new Date());
 
   return (
-    <div className="border-b bg-muted/30 text-sm">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-1.5">
-        <div className="flex items-center gap-3">
+    <div className="border-b bg-foreground text-background">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-1.5 text-xs">
+        <div className="flex items-center gap-3 tabular-nums">
           <span>{dateStr}</span>
+          <span className="text-background/50">·</span>
           <LiveClock />
         </div>
         <div className="flex items-center gap-4">
           <WeatherWidget initial={weather} />
-          <Link href="/auth/login" className="text-muted-foreground hover:text-foreground">
+          <Link href="/auth/login" className="text-background/70 hover:text-background">
             लॉगिन
           </Link>
         </div>

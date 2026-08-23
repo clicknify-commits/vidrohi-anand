@@ -41,3 +41,24 @@ export async function processImage(input: Buffer): Promise<ProcessedImage> {
 
   return { thumbnail, card, full, width, height };
 }
+
+const INLINE_MAX_WIDTH = 1400;
+
+export interface ProcessedInlineImage {
+  buffer: Buffer;
+  width: number;
+  height: number;
+}
+
+// Body-embedded images (dropped/pasted into the article text) don't need the
+// thumb/card/full triad the 5-slot gallery uses - they render at one size
+// inline, so a single content-width derivative avoids generating two unused
+// variants per drop.
+export async function processInlineImage(input: Buffer): Promise<ProcessedInlineImage> {
+  const resized = sharp(input, { failOn: "none" })
+    .rotate()
+    .resize({ width: INLINE_MAX_WIDTH, withoutEnlargement: true });
+  const buffer = await resized.webp({ quality: 82 }).toBuffer();
+  const metadata = await sharp(buffer).metadata();
+  return { buffer, width: metadata.width ?? 0, height: metadata.height ?? 0 };
+}

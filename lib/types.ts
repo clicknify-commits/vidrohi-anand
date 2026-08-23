@@ -31,6 +31,24 @@ export interface Tag {
   created_at: string;
 }
 
+export interface AuthorSocialLinks {
+  x?: string;
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
+  website?: string;
+}
+
+export interface Author {
+  id: string;
+  name: string;
+  slug: string;
+  photo_path: string | null;
+  bio: string | null;
+  social_links: AuthorSocialLinks;
+  created_at: string;
+}
+
 export interface ArticleImage {
   id: string;
   article_id: string;

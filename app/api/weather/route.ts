@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { getWeather } from "@/lib/weather/weatherapi";
+import { getWeatherByCoords } from "@/lib/weather/weatherapi";
 
 export async function GET(request: NextRequest) {
   const lat = request.nextUrl.searchParams.get("lat");
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "lat/lon आवश्यक हैं" }, { status: 400 });
   }
 
-  const weather = await getWeather(`${lat},${lon}`);
+  const weather = await getWeatherByCoords(Number(lat), Number(lon));
   if (!weather) {
     return NextResponse.json({ error: "मौसम डेटा उपलब्ध नहीं है" }, { status: 503 });
   }

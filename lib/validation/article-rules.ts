@@ -1,8 +1,13 @@
-import { FEATURED_MIN_WIDTH, FEATURED_MIN_HEIGHT } from "@/lib/images/constants";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
+
+export interface MissingItem {
+  key: TranslationKey;
+  position: number;
+}
 
 export interface ReviewCheck {
   ready: boolean;
-  missing: string[];
+  missing: MissingItem[];
 }
 
 type ImageForCheck = {
@@ -12,24 +17,20 @@ type ImageForCheck = {
   height: number | null;
 };
 
+// Image dimensions are informational only (see images.recommendedSize in the
+// composer) - they used to hard-block review/publish, but a strict minimum
+// rejected legitimate images outright, so size no longer gates readiness.
 export function checkReadyForReview(images: ImageForCheck[]): ReviewCheck {
-  const missing: string[] = [];
+  const missing: MissingItem[] = [];
 
   for (let position = 1; position <= 5; position++) {
     const image = images.find((img) => img.position === position);
     if (!image) {
-      missing.push(`स्लॉट ${position}: कोई छवि नहीं है`);
+      missing.push({ key: "images.slotMissing", position });
       continue;
     }
     if (!image.alt_text || !image.alt_text.trim()) {
-      missing.push(`स्लॉट ${position}: ऑल्ट टेक्स्ट आवश्यक है`);
-    }
-    if (position === 1) {
-      const w = image.width ?? 0;
-      const h = image.height ?? 0;
-      if (w < FEATURED_MIN_WIDTH || h < FEATURED_MIN_HEIGHT) {
-        missing.push(`फ़ीचर्ड छवि कम से कम ${FEATURED_MIN_WIDTH}x${FEATURED_MIN_HEIGHT}px होनी चाहिए`);
-      }
+      missing.push({ key: "images.altRequired", position });
     }
   }
 

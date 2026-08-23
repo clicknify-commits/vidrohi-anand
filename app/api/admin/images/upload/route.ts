@@ -1,10 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import {
-  processImage,
-  FEATURED_MIN_WIDTH,
-  FEATURED_MIN_HEIGHT,
-} from "@/lib/images/process";
+import { processImage } from "@/lib/images/process";
 
 export const runtime = "nodejs";
 
@@ -36,18 +32,6 @@ export async function POST(request: NextRequest) {
     processed = await processImage(inputBuffer);
   } catch {
     return NextResponse.json({ error: "छवि प्रोसेस नहीं हो सकी" }, { status: 422 });
-  }
-
-  if (
-    position === 1 &&
-    (processed.width < FEATURED_MIN_WIDTH || processed.height < FEATURED_MIN_HEIGHT)
-  ) {
-    return NextResponse.json(
-      {
-        error: `फ़ीचर्ड छवि कम से कम ${FEATURED_MIN_WIDTH}x${FEATURED_MIN_HEIGHT}px होनी चाहिए (यह ${processed.width}x${processed.height}px है)।`,
-      },
-      { status: 422 }
-    );
   }
 
   const basePath = `${articleId}/${position}`;

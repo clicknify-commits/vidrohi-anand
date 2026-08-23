@@ -4,8 +4,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { updateSettings } from "./actions";
+import { getLanguage } from "@/lib/i18n/language";
+import { t } from "@/lib/i18n/dictionary";
 
 export default async function SettingsPage() {
+  const lang = await getLanguage();
   const supabase = await createClient();
   const { data: rows } = await supabase.from("settings").select("key, value");
 
@@ -15,34 +18,34 @@ export default async function SettingsPage() {
 
   return (
     <div className="max-w-xl space-y-6">
-      <h1 className="text-2xl font-semibold">सेटिंग्स</h1>
+      <h1 className="text-2xl font-semibold">{t(lang, "settings.title")}</h1>
       <Card>
         <CardHeader>
-          <CardTitle>वेदर व सोशल लिंक</CardTitle>
+          <CardTitle>{t(lang, "settings.weatherSocial")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={updateSettings} className="space-y-4">
             <div className="space-y-2">
-              <Label>डिफ़ॉल्ट मौसम शहर</Label>
+              <Label>{t(lang, "settings.defaultCity")}</Label>
               <Input name="default_weather_city" defaultValue={defaultCity} />
             </div>
             <div className="space-y-2">
-              <Label>WhatsApp नंबर (देश कोड सहित, बिना +)</Label>
+              <Label>{t(lang, "settings.whatsapp")}</Label>
               <Input name="whatsapp" defaultValue={socialLinks.whatsapp ?? ""} placeholder="91XXXXXXXXXX" />
             </div>
             <div className="space-y-2">
-              <Label>X (Twitter) हैंडल</Label>
+              <Label>{t(lang, "settings.x")}</Label>
               <Input name="x" defaultValue={socialLinks.x ?? ""} placeholder="vidrohianand" />
             </div>
             <div className="space-y-2">
-              <Label>Instagram हैंडल</Label>
+              <Label>{t(lang, "settings.instagram")}</Label>
               <Input name="instagram" defaultValue={socialLinks.instagram ?? ""} placeholder="vidrohianand" />
             </div>
             <div className="space-y-2">
-              <Label>YouTube चैनल ID</Label>
+              <Label>{t(lang, "settings.youtube")}</Label>
               <Input name="youtube" defaultValue={socialLinks.youtube ?? ""} />
             </div>
-            <Button type="submit">सेव करें</Button>
+            <Button type="submit">{t(lang, "common.save")}</Button>
           </form>
         </CardContent>
       </Card>

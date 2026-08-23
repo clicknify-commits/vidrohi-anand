@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Noto_Sans_Devanagari } from "next/font/google";
+import { Noto_Sans_Devanagari, Noto_Serif_Devanagari } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { organizationJsonLd } from "@/lib/seo/jsonld";
@@ -9,6 +9,14 @@ const notoSansDevanagari = Noto_Sans_Devanagari({
   variable: "--font-sans",
   subsets: ["devanagari", "latin"],
   weight: ["400", "500", "600", "700"],
+});
+
+// Editorial serif for headlines/masthead - body copy and UI chrome stay on
+// the sans family above for reading comfort at small sizes.
+const notoSerifDevanagari = Noto_Serif_Devanagari({
+  variable: "--font-serif",
+  subsets: ["devanagari", "latin"],
+  weight: ["500", "600", "700", "800"],
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -24,7 +32,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="hi" className={`${notoSansDevanagari.variable} h-full antialiased`}>
+    <html
+      lang="hi"
+      className={`${notoSansDevanagari.variable} ${notoSerifDevanagari.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col">
         <script
           type="application/ld+json"

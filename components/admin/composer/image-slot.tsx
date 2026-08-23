@@ -5,6 +5,8 @@ import Image from "next/image";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { publicImageUrl } from "@/lib/images/url";
+import { useLanguage } from "@/components/admin/language-provider";
+import { FEATURED_MIN_WIDTH, FEATURED_MIN_HEIGHT } from "@/lib/images/constants";
 import type { ArticleImage } from "@/lib/types";
 
 interface ImageSlotProps {
@@ -15,6 +17,7 @@ interface ImageSlotProps {
 }
 
 export function ImageSlot({ articleId, position, image, onChange }: ImageSlotProps) {
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, startUpload] = useTransition();
   const [isSaving, startSaving] = useTransition();
@@ -34,11 +37,11 @@ export function ImageSlot({ articleId, position, image, onChange }: ImageSlotPro
       const res = await fetch("/api/admin/images/upload", { method: "POST", body: formData });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error ?? "अपलोड विफल");
+        toast.error(data.error ?? t("images.uploadFailed"));
         return;
       }
       onChange(data as ArticleImage);
-      toast.success(`स्लॉट ${position} अपलोड हो गया`);
+      toast.success(t("images.uploaded", { position }));
     });
   }
 
@@ -72,11 +75,11 @@ export function ImageSlot({ articleId, position, image, onChange }: ImageSlotPro
     <div className="space-y-2 rounded-md border p-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground">
-          {position === 1 ? "फ़ीचर्ड छवि (स्लॉट 1)" : `गैलरी छवि (स्लॉट ${position})`}
+          {position === 1 ? t("images.featured") : t("images.gallery", { position })}
         </span>
         {image ? (
           <button type="button" onClick={handleDelete} className="text-xs text-destructive">
-            हटाएँ
+            {t("images.remove")}
           </button>
         ) : null}
       </div>
@@ -85,7 +88,7 @@ export function ImageSlot({ articleId, position, image, onChange }: ImageSlotPro
         <div
           className="relative aspect-video cursor-crosshair overflow-hidden rounded bg-muted"
           onClick={handleFocalClick}
-          title="फ़ोकल पॉइंट सेट करने के लिए क्लिक करें"
+          title={t("images.focalHint")}
         >
           <Image
             src={publicImageUrl(image.card_path)}
@@ -107,7 +110,7 @@ export function ImageSlot({ articleId, position, image, onChange }: ImageSlotPro
           disabled={isUploading}
           className="flex aspect-video w-full items-center justify-center rounded border border-dashed text-sm text-muted-foreground hover:bg-muted/50"
         >
-          {isUploading ? "अपलोड हो रहा है…" : "+ छवि चुनें"}
+          {isUploading ? t("images.uploading") : t("images.choose")}
         </button>
       )}
       <input
@@ -118,24 +121,36 @@ export function ImageSlot({ articleId, position, image, onChange }: ImageSlotPro
         onChange={handleFileChange}
       />
 
+      {position === 1 &&
+      image &&
+      image.width != null &&
+      image.height != null &&
+      (image.width < FEATURED_MIN_WIDTH || image.height < FEATURED_MIN_HEIGHT) ? (
+        <p className="text-[11px] text-amber-700">
+          {t("images.recommendedSize", { w: FEATURED_MIN_WIDTH, h: FEATURED_MIN_HEIGHT })}
+          {" · "}
+          {t("images.currentSize", { w: image.width, h: image.height })}
+        </p>
+      ) : null}
+
       {image ? (
         <div className="space-y-1.5">
           <Input
-            placeholder="ऑल्ट टेक्स्ट (आवश्यक)"
+            placeholder={t("images.altPlaceholder")}
             defaultValue={image.alt_text}
             onBlur={(e) => patch({ alt_text: e.target.value })}
           />
           <Input
-            placeholder="कैप्शन"
+            placeholder={t("images.captionPlaceholder")}
             defaultValue={image.caption ?? ""}
             onBlur={(e) => patch({ caption: e.target.value })}
           />
           <Input
-            placeholder="क्रेडिट / स्रोत"
+            placeholder={t("images.creditPlaceholder")}
             defaultValue={image.credit ?? ""}
             onBlur={(e) => patch({ credit: e.target.value })}
           />
-          {isSaving ? <p className="text-xs text-muted-foreground">सेव हो रहा है…</p> : null}
+          {isSaving ? <p className="text-xs text-muted-foreground">{t("images.saving")}</p> : null}
         </div>
       ) : null}
     </div>

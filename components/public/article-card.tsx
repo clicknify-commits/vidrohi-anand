@@ -15,7 +15,7 @@ export function ArticleCard({
   return (
     <Link href={href} className="group block">
       <div
-        className={`relative overflow-hidden rounded bg-muted ${
+        className={`relative overflow-hidden rounded-md bg-muted ${
           size === "large" ? "aspect-video" : "aspect-[4/3]"
         }`}
       >
@@ -28,22 +28,22 @@ export function ArticleCard({
             style={{
               objectPosition: `${article.featuredImage.focal_x * 100}% ${article.featuredImage.focal_y * 100}%`,
             }}
-            className="object-cover transition group-hover:scale-105"
+            className="object-cover transition duration-300 group-hover:scale-105"
             priority={size === "large"}
           />
         ) : null}
       </div>
-      <div className="mt-2 space-y-1">
-        <span className="text-xs font-semibold text-brand">{article.categoryName}</span>
+      <div className={size === "large" ? "mt-3 space-y-1.5" : "mt-2 space-y-1"}>
+        <span className="text-xs font-semibold tracking-wide text-brand">{article.categoryName}</span>
         <h3
-          className={`font-semibold leading-snug group-hover:text-brand ${
-            size === "large" ? "text-xl" : "text-sm"
+          className={`font-heading leading-snug font-semibold text-foreground transition-colors group-hover:text-brand ${
+            size === "large" ? "text-2xl sm:text-3xl" : "text-sm"
           }`}
         >
           {article.headline}
         </h3>
         {size === "large" && article.dek ? (
-          <p className="line-clamp-2 text-sm text-muted-foreground">{article.dek}</p>
+          <p className="line-clamp-2 text-base text-muted-foreground">{article.dek}</p>
         ) : null}
       </div>
     </Link>

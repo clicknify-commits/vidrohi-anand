@@ -10,9 +10,12 @@ import {
   createTag,
   deleteTag,
 } from "./actions";
+import { getLanguage } from "@/lib/i18n/language";
+import { t } from "@/lib/i18n/dictionary";
 import type { Category, Tag } from "@/lib/types";
 
 export default async function CategoriesPage() {
+  const lang = await getLanguage();
   const supabase = await createClient();
   const [{ data: categories }, { data: tags }] = await Promise.all([
     supabase.from("categories").select("*").order("sort_order"),
@@ -21,22 +24,22 @@ export default async function CategoriesPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-semibold">श्रेणियाँ प्रबंधित करें</h1>
+      <h1 className="text-2xl font-semibold">{t(lang, "categories.title")}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>श्रेणियाँ</CardTitle>
+          <CardTitle>{t(lang, "categories.categories")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="p-2">हिंदी नाम</th>
-                  <th className="p-2">अंग्रेज़ी नाम</th>
-                  <th className="p-2">स्लग</th>
-                  <th className="p-2">क्रम</th>
-                  <th className="p-2">सक्रिय</th>
+                  <th className="p-2">{t(lang, "categories.nameHi")}</th>
+                  <th className="p-2">{t(lang, "categories.nameEn")}</th>
+                  <th className="p-2">{t(lang, "categories.slug")}</th>
+                  <th className="p-2">{t(lang, "categories.order")}</th>
+                  <th className="p-2">{t(lang, "common.active")}</th>
                   <th className="p-2" />
                 </tr>
               </thead>
@@ -60,10 +63,10 @@ export default async function CategoriesPage() {
                         />
                         <label className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Checkbox name="is_active" defaultChecked={cat.is_active} />
-                          सक्रिय
+                          {t(lang, "common.active")}
                         </label>
                         <Button type="submit" size="sm" variant="outline">
-                          सेव करें
+                          {t(lang, "common.save")}
                         </Button>
                         <Button
                           type="submit"
@@ -72,7 +75,7 @@ export default async function CategoriesPage() {
                           formAction={deleteCategory}
                           className="text-destructive"
                         >
-                          हटाएँ
+                          {t(lang, "common.delete")}
                         </Button>
                       </form>
                     </td>
@@ -84,29 +87,29 @@ export default async function CategoriesPage() {
 
           <form action={createCategory} className="flex flex-wrap items-end gap-2 border-t pt-4">
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">हिंदी नाम</label>
+              <label className="text-xs text-muted-foreground">{t(lang, "categories.nameHi")}</label>
               <Input name="name_hi" required className="w-32" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">अंग्रेज़ी नाम</label>
+              <label className="text-xs text-muted-foreground">{t(lang, "categories.nameEn")}</label>
               <Input name="name_en" required className="w-32" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">स्लग (खाली छोड़ें तो अपने आप बनेगा)</label>
+              <label className="text-xs text-muted-foreground">{t(lang, "categories.slugHint")}</label>
               <Input name="slug" className="w-36" />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">क्रम</label>
+              <label className="text-xs text-muted-foreground">{t(lang, "categories.order")}</label>
               <Input name="sort_order" type="number" defaultValue={0} className="w-16" />
             </div>
-            <Button type="submit">+ नई श्रेणी जोड़ें</Button>
+            <Button type="submit">{t(lang, "categories.addNew")}</Button>
           </form>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>टैग</CardTitle>
+          <CardTitle>{t(lang, "categories.tags")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
@@ -114,21 +117,21 @@ export default async function CategoriesPage() {
               <form key={tag.id} action={deleteTag} className="flex items-center gap-1 rounded-full border px-3 py-1 text-sm">
                 <input type="hidden" name="id" value={tag.id} />
                 <span>{tag.name}</span>
-                <button type="submit" className="text-muted-foreground hover:text-destructive" aria-label={`${tag.name} हटाएँ`}>
+                <button type="submit" className="text-muted-foreground hover:text-destructive" aria-label={`${t(lang, "common.delete")} ${tag.name}`}>
                   ×
                 </button>
               </form>
             ))}
             {tags?.length === 0 ? (
-              <p className="text-sm text-muted-foreground">अभी कोई टैग नहीं है।</p>
+              <p className="text-sm text-muted-foreground">{t(lang, "categories.noTags")}</p>
             ) : null}
           </div>
           <form action={createTag} className="flex items-end gap-2 border-t pt-4">
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">नया टैग</label>
+              <label className="text-xs text-muted-foreground">{t(lang, "categories.newTag")}</label>
               <Input name="name" required className="w-48" />
             </div>
-            <Button type="submit">+ जोड़ें</Button>
+            <Button type="submit">+ {t(lang, "common.add")}</Button>
           </form>
         </CardContent>
       </Card>

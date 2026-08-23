@@ -7,14 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useLanguage } from "@/components/admin/language-provider";
 import type { ArticleStatus } from "@/lib/types";
+import type { TranslationKey } from "@/lib/i18n/dictionary";
 
-const STATUS_LABELS: Record<ArticleStatus, string> = {
-  draft: "ड्राफ्ट",
-  in_review: "समीक्षा में",
-  scheduled: "शेड्यूल्ड",
-  published: "प्रकाशित",
-  archived: "आर्काइव्ड",
+const STATUS_KEYS: Record<ArticleStatus, TranslationKey> = {
+  draft: "status.draft",
+  in_review: "status.in_review",
+  scheduled: "status.scheduled",
+  published: "status.published",
+  archived: "status.archived",
 };
 
 interface PublishControlsProps {
@@ -35,6 +37,7 @@ export function PublishControls({
   onStatusChanged,
 }: PublishControlsProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [scheduleAt, setScheduleAt] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -48,13 +51,13 @@ export function PublishControls({
       });
       const data = await res.json();
       if (!res.ok) {
-        toast.error(data.error ?? "स्टेटस बदला नहीं जा सका", {
+        toast.error(data.error ?? t("publish.statusChangeFailed"), {
           description: Array.isArray(data.missing) ? data.missing.join("، ") : undefined,
         });
         return;
       }
       onStatusChanged(data.status);
-      toast.success("अपडेट हो गया");
+      toast.success(t("publish.updated"));
     });
   }
 
@@ -63,50 +66,50 @@ export function PublishControls({
     const res = await fetch(`/api/admin/articles/${articleId}/duplicate`, { method: "POST" });
     const data = await res.json();
     if (res.ok) {
-      toast.success("फॉलो-अप ड्राफ्ट बन गया");
+      toast.success(t("publish.duplicated"));
       router.push(`/admin/articles/${data.id}`);
     } else {
-      toast.error(data.error ?? "फेल हो गया");
+      toast.error(data.error ?? t("publish.duplicateFailed"));
     }
   }
 
   return (
     <div className="space-y-4">
       <div className="rounded border p-3">
-        <p className="text-sm font-medium">वर्तमान स्टेटस</p>
-        <p className="text-xs text-muted-foreground">{STATUS_LABELS[status]}</p>
+        <p className="text-sm font-medium">{t("publish.currentStatus")}</p>
+        <p className="text-xs text-muted-foreground">{t(STATUS_KEYS[status])}</p>
       </div>
 
       <div className="flex items-center justify-between rounded border p-3">
-        <Label>ब्रेकिंग न्यूज़</Label>
+        <Label>{t("publish.breakingNews")}</Label>
         <Switch checked={isBreaking} onCheckedChange={onBreakingChange} />
       </div>
 
       <div className="flex flex-wrap gap-2">
         {status === "draft" ? (
           <Button disabled={isPending} onClick={() => transition("in_review")}>
-            समीक्षा में भेजें
+            {t("publish.sendToReview")}
           </Button>
         ) : null}
         {status === "draft" || status === "in_review" ? (
           <Button disabled={isPending} onClick={() => transition("published")}>
-            अभी प्रकाशित करें
+            {t("publish.publishNow")}
           </Button>
         ) : null}
         {status === "published" ? (
           <Button disabled={isPending} variant="outline" onClick={() => transition("archived")}>
-            आर्काइव करें
+            {t("publish.archive")}
           </Button>
         ) : null}
         <Button disabled={isPending} variant="outline" onClick={handleDuplicate}>
-          फॉलो-अप के रूप में डुप्लिकेट करें
+          {t("publish.duplicate")}
         </Button>
       </div>
 
       {status === "draft" || status === "in_review" ? (
         <div className="flex flex-wrap items-end gap-2 rounded border p-3">
           <div className="space-y-1">
-            <Label>शेड्यूल करें (तारीख़ व समय)</Label>
+            <Label>{t("publish.scheduleLabel")}</Label>
             <Input
               type="datetime-local"
               value={scheduleAt}
@@ -118,7 +121,7 @@ export function PublishControls({
             disabled={isPending || !scheduleAt}
             onClick={() => transition("scheduled", new Date(scheduleAt).toISOString())}
           >
-            शेड्यूल करें
+            {t("publish.schedule")}
           </Button>
         </div>
       ) : null}

@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AdminNav } from "@/components/admin/admin-nav";
+import { LanguageProvider } from "@/components/admin/language-provider";
+import { getLanguage } from "@/lib/i18n/language";
 import type { Profile } from "@/lib/types";
 
 export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
@@ -23,10 +25,14 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
     redirect("/auth/login");
   }
 
+  const lang = await getLanguage();
+
   return (
-    <div className="min-h-screen bg-muted/20">
-      <AdminNav profile={profile} />
-      <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
-    </div>
+    <LanguageProvider initialLang={lang}>
+      <div className="min-h-screen bg-muted/20">
+        <AdminNav profile={profile} />
+        <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+      </div>
+    </LanguageProvider>
   );
 }
