@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { slugify } from "@/lib/utils/slugify";
 
 const EDITABLE_FIELDS = [
   "headline",
@@ -29,6 +30,13 @@ export async function PATCH(
   const update: Record<string, unknown> = {};
   for (const field of EDITABLE_FIELDS) {
     if (field in body) update[field] = body[field];
+  }
+  // Never trust client-side sanitization alone - a raw slug with spaces/
+  // punctuation breaks the public URL (this is what caused the 404s).
+  if (typeof update.slug === "string") {
+    const cleaned = slugify(update.slug);
+    if (!cleaned) return NextResponse.json({ error: "अमान्य स्लग" }, { status: 400 });
+    update.slug = cleaned;
   }
 
   const supabase = await createClient();

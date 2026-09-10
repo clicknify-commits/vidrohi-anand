@@ -21,6 +21,7 @@ import { FiveImageGrid } from "./five-image-grid";
 import { SeoPanel } from "./seo-panel";
 import { PublishControls } from "./publish-controls";
 import { checkReadyForReview } from "@/lib/validation/article-rules";
+import { slugify } from "@/lib/utils/slugify";
 import { useLanguage } from "@/components/admin/language-provider";
 import type { Article, ArticleImage, ArticleStatus, Author, Category, Tag } from "@/lib/types";
 import type { TranslationKey } from "@/lib/i18n/dictionary";
@@ -214,7 +215,7 @@ export function ComposerShell({
             <Input
               value={slug}
               onChange={(e) => {
-                setSlug(e.target.value);
+                setSlug(slugify(e.target.value));
                 markDirty();
               }}
             />
