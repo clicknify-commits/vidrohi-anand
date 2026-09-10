@@ -53,7 +53,9 @@ export function PublishControls({
       const data = await res.json();
       if (!res.ok) {
         toast.error(data.error ?? t("publish.statusChangeFailed"), {
-          description: Array.isArray(data.missing) ? data.missing.join("، ") : undefined,
+          description: Array.isArray(data.missing)
+            ? data.missing.map((m: { key: TranslationKey; position: number }) => t(m.key, { position: m.position })).join("، ")
+            : undefined,
         });
         return;
       }

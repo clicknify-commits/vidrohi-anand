@@ -6,6 +6,7 @@ import { createArticle } from "./actions";
 import { getLanguage } from "@/lib/i18n/language";
 import { t } from "@/lib/i18n/dictionary";
 import { DeleteArticleButton } from "@/components/admin/delete-article-button";
+import { PublishArticleButton } from "@/components/admin/publish-article-button";
 import type { ArticleStatus } from "@/lib/types";
 import type { TranslationKey } from "@/lib/i18n/dictionary";
 
@@ -103,7 +104,10 @@ export default async function ArticlesPage(props: PageProps<"/admin/articles">) 
                 <td className="p-3 text-muted-foreground">
                   {new Date(article.updated_at).toLocaleString(lang === "en" ? "en-IN" : "hi-IN")}
                 </td>
-                <td className="p-3 text-right">
+                <td className="p-3 text-right whitespace-nowrap">
+                  {article.status === "draft" || article.status === "in_review" ? (
+                    <PublishArticleButton articleId={article.id} />
+                  ) : null}
                   {article.status !== "published" ? (
                     <DeleteArticleButton articleId={article.id} variant="ghost" size="sm">
                       {t(lang, "common.delete")}
