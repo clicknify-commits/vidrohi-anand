@@ -1,10 +1,7 @@
-import Image from "next/image";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { publicImageUrl } from "@/lib/images/url";
-import { Card, CardContent } from "@/components/ui/card";
 import { getLanguage } from "@/lib/i18n/language";
 import { t } from "@/lib/i18n/dictionary";
+import { MediaImageCard } from "@/components/admin/media-image-card";
 
 interface MediaRow {
   id: string;
@@ -39,25 +36,15 @@ export default async function MediaLibraryPage() {
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {images.map((img) => (
-            <Card key={img.id} className="overflow-hidden py-0">
-              <Link href={`/admin/articles/${img.article_id}`}>
-                <div className="relative aspect-square bg-muted">
-                  <Image
-                    src={publicImageUrl(img.thumbnail_path)}
-                    alt={img.alt_text || ""}
-                    fill
-                    sizes="200px"
-                    className="object-cover"
-                  />
-                </div>
-                <CardContent className="p-2">
-                  <p className="truncate text-xs font-medium">
-                    {img.articles?.headline ?? "—"}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground">{t(lang, "media.slot", { position: img.position })}</p>
-                </CardContent>
-              </Link>
-            </Card>
+            <MediaImageCard
+              key={img.id}
+              imageId={img.id}
+              articleId={img.article_id}
+              thumbnailPath={img.thumbnail_path}
+              altText={img.alt_text}
+              headline={img.articles?.headline ?? "—"}
+              position={img.position}
+            />
           ))}
         </div>
       )}

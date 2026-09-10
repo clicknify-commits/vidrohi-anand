@@ -38,6 +38,13 @@ const dict = {
   "articles.category": { hi: "श्रेणी", en: "Category" },
   "articles.status": { hi: "स्टेटस", en: "Status" },
   "articles.noneYet": { hi: "अभी कोई स्टोरी नहीं है।", en: "No articles yet." },
+  "articles.deleteConfirmTitle": { hi: "स्टोरी हटाएँ?", en: "Delete this story?" },
+  "articles.deleteConfirmBody": {
+    hi: "यह स्टोरी और इसकी सभी छवियाँ स्थायी रूप से हट जाएँगी। यह पूर्ववत नहीं किया जा सकता।",
+    en: "This story and all its images will be permanently deleted. This cannot be undone.",
+  },
+  "articles.deleted": { hi: "स्टोरी हट गई", en: "Story deleted" },
+  "articles.deleteFailed": { hi: "स्टोरी हटाई नहीं जा सकी", en: "Could not delete the story" },
 
   "composer.headlinePlaceholder": { hi: "शीर्षक", en: "Headline" },
   "composer.charsSuggestion": { hi: "अक्षर (सुझाव: 50-70)", en: "characters (suggested: 50-70)" },
@@ -104,6 +111,7 @@ const dict = {
   "publish.updated": { hi: "अपडेट हो गया", en: "Updated" },
   "publish.duplicated": { hi: "फॉलो-अप ड्राफ्ट बन गया", en: "Follow-up draft created" },
   "publish.duplicateFailed": { hi: "फेल हो गया", en: "Failed" },
+  "publish.deleteArticle": { hi: "स्टोरी हटाएँ", en: "Delete story" },
 
   "categories.title": { hi: "श्रेणियाँ प्रबंधित करें", en: "Manage categories" },
   "categories.categories": { hi: "श्रेणियाँ", en: "Categories" },
@@ -145,6 +153,10 @@ const dict = {
   "editor.insertImage": { hi: "छवि डालें", en: "Insert image" },
   "editor.imageUploadFailed": { hi: "छवि अपलोड नहीं हो सकी", en: "Image could not be uploaded" },
   "editor.dropHint": { hi: "छवि यहाँ खींचकर छोड़ें या पेस्ट करें", en: "Drag & drop or paste an image here" },
+  "editor.deleteImage": { hi: "चयनित छवि हटाएँ", en: "Delete selected image" },
+  "media.deleteConfirmTitle": { hi: "छवि हटाएँ?", en: "Delete this image?" },
+  "media.deleted": { hi: "छवि हट गई", en: "Image deleted" },
+  "media.deleteFailed": { hi: "छवि हटाई नहीं जा सकी", en: "Could not delete the image" },
 } as const satisfies Record<string, Record<Lang, string>>;
 
 export type TranslationKey = keyof typeof dict;

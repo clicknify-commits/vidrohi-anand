@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { createArticle } from "./actions";
 import { getLanguage } from "@/lib/i18n/language";
 import { t } from "@/lib/i18n/dictionary";
+import { DeleteArticleButton } from "@/components/admin/delete-article-button";
 import type { ArticleStatus } from "@/lib/types";
 import type { TranslationKey } from "@/lib/i18n/dictionary";
 
@@ -82,6 +83,7 @@ export default async function ArticlesPage(props: PageProps<"/admin/articles">) 
               <th className="p-3">{t(lang, "articles.category")}</th>
               <th className="p-3">{t(lang, "articles.status")}</th>
               <th className="p-3">{t(lang, "common.updated")}</th>
+              <th className="p-3" />
             </tr>
           </thead>
           <tbody>
@@ -101,11 +103,18 @@ export default async function ArticlesPage(props: PageProps<"/admin/articles">) 
                 <td className="p-3 text-muted-foreground">
                   {new Date(article.updated_at).toLocaleString(lang === "en" ? "en-IN" : "hi-IN")}
                 </td>
+                <td className="p-3 text-right">
+                  {article.status !== "published" ? (
+                    <DeleteArticleButton articleId={article.id} variant="ghost" size="sm">
+                      {t(lang, "common.delete")}
+                    </DeleteArticleButton>
+                  ) : null}
+                </td>
               </tr>
             ))}
             {(articles ?? []).length === 0 ? (
               <tr>
-                <td colSpan={4} className="p-6 text-center text-muted-foreground">
+                <td colSpan={5} className="p-6 text-center text-muted-foreground">
                   {t(lang, "articles.noneYet")}
                 </td>
               </tr>

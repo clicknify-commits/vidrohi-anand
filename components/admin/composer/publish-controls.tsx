@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/components/admin/language-provider";
+import { DeleteArticleButton } from "@/components/admin/delete-article-button";
 import type { ArticleStatus } from "@/lib/types";
 import type { TranslationKey } from "@/lib/i18n/dictionary";
 
@@ -104,6 +105,14 @@ export function PublishControls({
         <Button disabled={isPending} variant="outline" onClick={handleDuplicate}>
           {t("publish.duplicate")}
         </Button>
+        {status !== "published" ? (
+          <DeleteArticleButton
+            articleId={articleId}
+            onDeleted={() => router.push("/admin/articles")}
+          >
+            {t("publish.deleteArticle")}
+          </DeleteArticleButton>
+        ) : null}
       </div>
 
       {status === "draft" || status === "in_review" ? (

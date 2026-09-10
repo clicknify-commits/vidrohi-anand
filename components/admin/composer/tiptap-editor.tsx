@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import type { JSONContent } from "@tiptap/core";
 import { toast } from "sonner";
@@ -19,6 +19,7 @@ import {
   Table as TableIcon,
   Link as LinkIcon,
   ImagePlus,
+  Trash2,
 } from "lucide-react";
 
 interface TiptapEditorProps {
@@ -67,12 +68,14 @@ function removeNodeByTempId(editor: Editor, tempId: string) {
 export function TiptapEditor({ articleId, content, onChange }: TiptapEditorProps) {
   const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isImageSelected, setIsImageSelected] = useState(false);
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: editorExtensions,
     content,
     onUpdate: ({ editor }) => onChange(editor.getJSON()),
+    onSelectionUpdate: ({ editor }) => setIsImageSelected(editor.isActive("image")),
     editorProps: {
       attributes: {
         class: "prose prose-sm max-w-none min-h-[300px] focus:outline-none",
@@ -209,6 +212,15 @@ export function TiptapEditor({ articleId, content, onChange }: TiptapEditorProps
         <ToolbarButton onClick={() => fileInputRef.current?.click()}>
           <ImagePlus className="size-4" />
         </ToolbarButton>
+        {isImageSelected ? (
+          <ToolbarButton
+            active
+            onClick={() => editor.chain().focus().deleteSelection().run()}
+            title={t("editor.deleteImage")}
+          >
+            <Trash2 className="size-4 text-destructive" />
+          </ToolbarButton>
+        ) : null}
         <input
           ref={fileInputRef}
           type="file"
@@ -226,10 +238,12 @@ export function TiptapEditor({ articleId, content, onChange }: TiptapEditorProps
 function ToolbarButton({
   active,
   onClick,
+  title,
   children,
 }: {
   active?: boolean;
   onClick: () => void;
+  title?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -238,6 +252,7 @@ function ToolbarButton({
       size="sm"
       variant={active ? "secondary" : "ghost"}
       onClick={onClick}
+      title={title}
     >
       {children}
     </Button>

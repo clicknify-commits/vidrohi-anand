@@ -91,3 +91,53 @@ export async function PATCH(
 
   return NextResponse.json(data);
 }
+
+// Published articles can't be deleted outright - archive first (preserves
+// the URL/redirect trail). Everything else (draft, in_review, scheduled,
+// archived) can go straight away.
+export async function DELETE(
+  _request: Request,
+  ctx: RouteContext<"/api/admin/articles/[id]">
+) {
+  const { id } = await ctx.params;
+  const supabase = await createClient();
+
+  const { data: article } = await supabase
+    .from("articles")
+    .select("status")
+    .eq("id", id)
+    .single();
+
+  if (!article) return NextResponse.json({ error: "नहीं मिला" }, { status: 404 });
+  if (article.status === "published") {
+    return NextResponse.json(
+      { error: "प्रकाशित स्टोरी को सीधे हटाया नहीं जा सकता - पहले आर्काइव करें।" },
+      { status: 422 }
+    );
+  }
+
+  const { data: images } = await supabase
+    .from("article_images")
+    .select("storage_path, thumbnail_path, card_path")
+    .eq("article_id", id);
+
+  const paths = (images ?? []).flatMap((img) =>
+    [img.storage_path, img.thumbnail_path, img.card_path].filter(Boolean)
+  );
+  if (paths.length > 0) {
+    await supabase.storage.from("article-images").remove(paths);
+  }
+  // Inline body images live under a separate prefix, not tracked as
+  // article_images rows - list and remove them too.
+  const { data: bodyFiles } = await supabase.storage.from("article-images").list(`${id}/body`);
+  if (bodyFiles && bodyFiles.length > 0) {
+    await supabase.storage
+      .from("article-images")
+      .remove(bodyFiles.map((f) => `${id}/body/${f.name}`));
+  }
+
+  const { error } = await supabase.from("articles").delete().eq("id", id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  return NextResponse.json({ ok: true });
+}
