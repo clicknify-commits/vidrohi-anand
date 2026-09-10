@@ -58,6 +58,7 @@ export function ComposerShell({
   const [headline, setHeadline] = useState(article.headline);
   const [dek, setDek] = useState(article.dek ?? "");
   const [slug, setSlug] = useState(article.slug);
+  const slugTouchedRef = useRef(!/^untitled-[a-z0-9]+$/.test(article.slug));
   const [categoryId, setCategoryId] = useState(article.category_id);
   const [cityTag, setCityTag] = useState(article.city_tag ?? "");
   const [authorId, setAuthorId] = useState(article.author_id ?? "");
@@ -128,6 +129,9 @@ export function ComposerShell({
             value={headline}
             onChange={(e) => {
               setHeadline(e.target.value);
+              if (!slugTouchedRef.current) {
+                setSlug(slugify(e.target.value));
+              }
               markDirty();
             }}
             className="text-xl font-semibold"
@@ -215,6 +219,7 @@ export function ComposerShell({
             <Input
               value={slug}
               onChange={(e) => {
+                slugTouchedRef.current = true;
                 setSlug(slugify(e.target.value));
                 markDirty();
               }}
